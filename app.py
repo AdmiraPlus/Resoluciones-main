@@ -76,6 +76,10 @@ def load_user(id):
 def status_401(error):
 	return redirect(url_for('login'))
 
+@login_manager.unauthorized_handler
+def unauthorized():
+    return redirect(url_for('login'))
+
 def status_404(error):
 	return "<h2>Página no encontrada</h2>", 404
 
