@@ -73,7 +73,7 @@ def load_user(id):
 	return Usuario.query.filter_by(id=id).first()
 
 def status_401(error):
-	return redirect(url_for('login'))
+	return redirect(url_for('/login'))
 
 def status_404(error):
 	return "<h2>Página no encontrada</h2>", 404
