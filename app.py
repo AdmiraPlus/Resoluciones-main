@@ -7,7 +7,7 @@ from flask_sqlalchemy import SQLAlchemy, session
 
 from flask_login import LoginManager, login_user, logout_user, login_required, UserMixin, current_user
 from flask_wtf.csrf import CSRFProtect
-from flask_session import Session
+
 
 # Creación de la aplicación con Flask
 app = Flask(__name__)
@@ -16,11 +16,8 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///resoluciones.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-app.config['SESSION_TYPE'] = 'sqlalchemy'
-app.config['SESSION_SQLALCHEMY'] = app.config['SQLALCHEMY_DATABASE_URI']
-Session(app)
-
 app.secret_key = 'l=#*)16l(c8@=qbzqthryo&0tiih&fvhg63_hjz8u()k$-3k&q'   # Agregado por Leoncio
+app.config['SECRET_KEY'] = 'l=#*)16l(c8@=qbzqthryo&0tiih&fvhg63_hjz8u()k$-3k&q'   # Agregado por Leoncio
 
 
 # Vinculamos SQLAlchemy a la aplicación
