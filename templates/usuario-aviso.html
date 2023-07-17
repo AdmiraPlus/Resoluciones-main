@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+{% extends 'base.html' %}
+
+
+<!-- Block Title  ---------------------------------------------------------------------------------------->
+{% block title %}
+	Usuarios
+{% endblock title %}
+
+<!-- Block Header ---------------------------------------------------------------------------------------->
+{% block header %}
+{% endblock header %}
+
+<!-- Block Main - ---------------------------------------------------------------------------------------->
+{% block main %}
+	<div class="card text-center col-md-6 offset-md-3 mt-5">
+		<div class="card-header">
+			Aviso
+		</div>
+		<div class="card-body">
+			<h5 class="card-title">Atención!</h5>
+			<p class="card-text">Solo el usuario administrador tiene acceso a esta opción</p>
+			
+			<a class="btn btn-outline-secondary" href="{{ url_for('home') }}" role="button">Cancelar</a>
+		</div>
+	</div>
+			
+{% endblock main %}
+
+<!-- Block Fotter ---------------------------------------------------------------------------------------->
+{% block footer %}
+{% endblock footer %}
+
+

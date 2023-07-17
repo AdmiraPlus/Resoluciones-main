@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+{% extends 'base.html' %}
+
+<!-- Block Title  ---------------------------------------------------------------------------------------->
+{% block title %}
+	Resoluciones
+{% endblock title %}
+
+{% block header %}
+	{% include 'navbar.html' %}
+{% endblock header %}
+
+<!-- Block Main - ---------------------------------------------------------------------------------------->
+{% block main %}
+	<div class="container">
+		<div class="card mt-3">
+			<div class="card-header text-white bg-secondary">
+				Bienvenido! 
+			</div>
+			
+			<div class="card-body">
+				<h4 class="card-title">Inicio</h4>
+				<p class="card-text">Estás en la página principal de la aplicación</p>
+				<p class="card-text">Que consta de la extracción de texto de Resoluciones</p>
+        		<p class="card-text">Más otras utilidades adicionales</p>
+			</div>
+			<div class="card-footer text-white bg-secondary">
+				{{ fecha }}
+			</div>
+		</div>
+	</div>
+{% endblock main %}
+
+<!-- Block Fotter ---------------------------------------------------------------------------------------->
+{% block footer %}
+{% endblock footer %}

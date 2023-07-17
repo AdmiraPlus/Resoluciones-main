@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+{% extends 'base.html' %}
+
+
+<!-- Block Title  ---------------------------------------------------------------------------------------->
+{% block title %}
+	Usuarios
+{% endblock title %}
+
+<!-- Block Header ---------------------------------------------------------------------------------------->
+{% block header %}
+{% endblock header %}
+
+<!-- Block Main - ---------------------------------------------------------------------------------------->
+{% block main %}
+	<form method="POST" class="mt-5">
+		<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+		<div class="card text-center col-md-6 offset-md-3">
+			<div class="card-header">
+				Eliminar Usuario
+			</div>
+			<div class="card-body">
+				<h5 class="card-title">Atención!</h5>
+				<p class="card-text">¿Está seguro de eliminar el Usuario: <strong>{{ usuario.usuario }}</strong>?</p>
+				
+				<button class="btn btn-danger" type="submit">Eliminar</button>
+				<a class="btn btn-outline-secondary" href="{{ url_for('usuarios') }}" role="button">Cancelar</a>
+			</div>
+		</div>
+			
+	</form>
+{% endblock main %}
+
+<!-- Block Fotter ---------------------------------------------------------------------------------------->
+{% block footer %}
+{% endblock footer %}
+
+
