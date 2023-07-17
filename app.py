@@ -190,7 +190,8 @@ def cargaresol():
 	uit = 4950
 
 	# Obtener la lista de archivos PDF en el directorio
-	PATH = "/resoluciones"
+	#PATH = "resoluciones"
+	PATH = "/home/resoluciones/Resoluciones-main/resoluciones"
 	files = []
 
 	for dirpath, dirnames, filenames in os.walk(PATH):
