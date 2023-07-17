@@ -6,7 +6,8 @@ import pandas as pd
 #from flask import Flask, render_template, request, send_file, make_response, flash, redirect, url_for
 from flask import Flask, render_template, request, make_response, flash, redirect, url_for
 
-from flask_sqlalchemy import SQLAlchemy, session
+#from flask_sqlalchemy import SQLAlchemy, session
+from flask_sqlalchemy import SQLAlchemy
 # Modulo para crear un archivo excel tipo xlsx
 import xlsxwriter
 from werkzeug.utils import secure_filename
