@@ -2,7 +2,7 @@ import os
 from io import BytesIO
 import pdfplumber
 import re
-import pandas as pd
+#import pandas as pd
 #from flask import Flask, render_template, request, send_file, make_response, flash, redirect, url_for
 from flask import Flask, render_template, request, make_response, flash, redirect, url_for
 
