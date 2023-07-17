@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+{% extends 'base.html' %}
+
+<!-- Block Title  ---------------------------------------------------------------------------------------->
+{% block title %}
+	Resoluciones
+{% endblock title %}
+
+{% block header %}
+	{% include 'navbar.html' %}
+{% endblock header %}
+
+<!-- Block Main - ---------------------------------------------------------------------------------------->
+{% block main %}
+	<div class="container">
+		<form action="{{ url_for('cargar_pdf') }}" method="post" enctype="multipart/form-data">
+			<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+			
+			<input type="file" class="form-control" name="archivo">
+			<input type="submit" class="form-control btn btn-primary" value="Cargar Archivo">
+		</form>
+	</div>
+{% endblock main %}
+
+<!-- Block Fotter ---------------------------------------------------------------------------------------->
+{% block footer %}
+{% endblock footer %}

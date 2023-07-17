@@ -25,6 +25,7 @@
 						<a class="nav-link link-dark px-2 disabled text-primary" href="#">[ {{ current_user.usuario }} ]</a>
 					</li>
 					<li class="nav-item"><a href="{{ url_for('cargaresol') }}" class="nav-link link-dark px-2">Cargar</a></li>
+					<li class="nav-item"><a href="{{ url_for('subir_pdf') }}" class="nav-link link-dark px-2">Subir PDF</a></li>
 					<li class="nav-item"><a href="{{ url_for('logout') }}" class="nav-link link-dark px-2">Cerrar sesión</a></li>
 				{% else %}
 					<li class="nav-item"><a href="{{ url_for('login') }}" class="nav-link link-dark px-2">Iniciar sesión</a></li>

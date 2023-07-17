@@ -33,6 +33,12 @@
     </table>
 
     <h4>Detalle de la Carga</h4>
+    <div class="mb-2">
+        <form action="{{ url_for('descargar_excel') }}">
+            <button type="submit" class="btn btn-primary">Descargar Resoluciones en Formato Excel</button>
+        </form>
+    </div>
+
     <table class="table">
         <thead class="table-primary">
             <tr>

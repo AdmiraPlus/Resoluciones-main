@@ -1,9 +1,15 @@
 import os
+from io import BytesIO
 import pdfplumber
 import re
 import pandas as pd
-from flask import Flask, render_template, request, send_file, flash, redirect, url_for
+#from flask import Flask, render_template, request, send_file, make_response, flash, redirect, url_for
+from flask import Flask, render_template, request, make_response, flash, redirect, url_for
+
 from flask_sqlalchemy import SQLAlchemy, session
+# Modulo para crear un archivo excel tipo xlsx
+import xlsxwriter
+from werkzeug.utils import secure_filename
 
 from flask_login import LoginManager, login_user, logout_user, login_required, UserMixin, current_user
 from flask_wtf.csrf import CSRFProtect
@@ -28,6 +34,14 @@ login_manager = LoginManager(app)
 
 #-- Para proteger login con token csfr
 csrf = CSRFProtect(app)
+
+# Configuración para subir archivos PDF
+app.config['UPLOAD_FOLDER'] = 'resoluciones'  # Ruta de la carpeta de destino en el servidor
+app.config['ALLOWED_EXTENSIONS'] = {'pdf', 'PDF'}  # Extensiones de archivo permitidas
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
 
 # Modelo de datos de Usuario
 class Usuario(db.Model, UserMixin):
@@ -184,6 +198,7 @@ def usuarios_eliminar(id):
 
 #==============================================================================	=======================
 
+# Carga de las resoluciones
 @app.route('/cargaresol', methods=['GET', 'POST'])
 def cargaresol():
     # Obtener el valor de la UIT ingresado por el usuario
@@ -320,12 +335,78 @@ def cargaresol():
 	files_new = [item.replace("resoluciones\\", "") for item in files]
 	return render_template('cargaresol.html', files = files_new, datos=lista_act)
 
-@app.route('/download', methods=['GET'])
-def download():
-	# Construir la ruta completa del archivo Excel
-	excel_file_path = os.path.join(os.getcwd(), 'resoluciones.xlsx')
+# Formulario para subir PDF
+@app.route('/subir_pdf', methods=['GET'])
+def subir_pdf():
+	return render_template('subir_pdf.html')
 
-	return send_file(excel_file_path, as_attachment=True)
+# Formulario para subir PDF a la carpeta resoluciones en el servidor
+@app.route('/cargar_pdf', methods=['POST'])
+def cargar_pdf():
+	if 'archivo' not in request.files:
+		return 'No se seleccionó ningún archivo'
+
+	archivo = request.files['archivo']
+
+	if archivo.filename == '':
+		mensaje = 'No se seleccionó ningún archivo'
+		return render_template('result_pdf.html', mensaje=mensaje)
+
+	if archivo and allowed_file(archivo.filename):
+		filename = secure_filename(archivo.filename)
+		archivo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+		mensaje = 'Archivo cargado con éxito'
+		return render_template('result_pdf.html', mensaje=mensaje)
+	else:
+		mensaje = 'Extensión de archivo no permitida'
+		return render_template('result_pdf.html', mensaje=mensaje)
+
+# Descarga de la tabla de resoluciones
+@app.route('/descargar_excel', methods=['GET'])
+def descargar_excel():
+    # Se traen todos los resgistros
+    # Pero se pueden aplicar filtros personalizados
+    resoluciones = Resolucion.query.all()
+
+    # Crear el archivo Excel
+    output = BytesIO()
+    workbook = xlsxwriter.Workbook(output)
+    worksheet = workbook.add_worksheet()
+
+    # Escribir los encabezados de la tabla
+    worksheet.write(0, 0, 'ID')
+    worksheet.write(0, 1, 'Fecha Resolución')
+    worksheet.write(0, 2, 'N° Resolución')
+    worksheet.write(0, 3, 'Nombre')
+    worksheet.write(0, 4, 'Infracción')
+    worksheet.write(0, 5, 'Valor')
+    worksheet.write(0, 6, 'Acta')
+    worksheet.write(0, 7, 'Fecha Acta')
+    worksheet.write(0, 8, 'Placa')
+    worksheet.write(0, 9, 'Servicio')
+
+    # Escribir los datos de las resoluciones
+    for i, resolucion in enumerate(resoluciones):
+        worksheet.write(i+1, 0, resolucion.id)
+        worksheet.write(i+1, 1, resolucion.fresolucion)
+        worksheet.write(i+1, 2, resolucion.nresolucion)
+        worksheet.write(i+1, 3, resolucion.nombre)
+        worksheet.write(i+1, 4, resolucion.infraccion)
+        worksheet.write(i+1, 5, resolucion.valor)
+        worksheet.write(i+1, 6, resolucion.acta)
+        worksheet.write(i+1, 7, resolucion.fechaActa)
+        worksheet.write(i+1, 8, resolucion.placa)
+        worksheet.write(i+1, 9, resolucion.servicio)
+
+    workbook.close()
+
+    # Preparar la respuesta para descargar el archivo Excel
+    output.seek(0)
+    response = make_response(output.getvalue())
+    response.headers['Content-Disposition'] = 'attachment; filename=resoluciones.xlsx'
+    response.headers['Content-type'] = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+
+    return response
 
 if __name__ == '__main__':
 	app.register_error_handler(401, status_401)
