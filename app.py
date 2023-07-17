@@ -26,7 +26,7 @@ db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 
 #-- Para proteger login con token csfr
-csrf = CSRFProtect()
+csrf = CSRFProtect(app)
 
 # Modelo de datos de Usuario
 class Usuario(db.Model, UserMixin):
