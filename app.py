@@ -2,33 +2,38 @@ import os
 from io import BytesIO
 import pdfplumber
 import re
-#import pandas as pd
-#from flask import Flask, render_template, request, send_file, make_response, flash, redirect, url_for
-from flask import Flask, render_template, request, make_response, flash, redirect, url_for
-
-#from flask_sqlalchemy import SQLAlchemy, session
+from flask import Flask, render_template, request, make_response, flash, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
+
+from sqlalchemy import or_
+
 # Modulo para crear un archivo excel tipo xlsx
 import xlsxwriter
 from werkzeug.utils import secure_filename
 
 from flask_login import LoginManager, login_user, logout_user, login_required, UserMixin, current_user
 from flask_wtf.csrf import CSRFProtect
-
+from flask_session import Session
+#from datetime import datetime
+import datetime
 
 # Creación de la aplicación con Flask
 app = Flask(__name__)
+
+#-- Probando con el cierre de sesión al cerrar el navegador
+app.config['SESSION_TYPE'] = 'filesystem'
+app.config['SESSION_PERMANENT'] = False  # La sesión expirará al cerrar el navegador
+Session(app)
+
 
 # Conectamos a la base de datos admin_base
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///resoluciones.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# app.secret_key = 'l=#*)16l(c8@=qbzqthryo&0tiih&fvhg63_hjz8u()k$-3k&q'   # Agregado por Leoncio
 app.config['SECRET_KEY'] = 'l=#*)16l(c8@=qbzqthryo&0tiih&fvhg63_hjz8u()k$-3k&q'   # Agregado por Leoncio
 
 # Vinculamos SQLAlchemy a la aplicación
 db = SQLAlchemy(app)
-
 
 #-- Manejador de Autenticación.
 login_manager = LoginManager(app)
@@ -64,6 +69,8 @@ class Resolucion(db.Model):
 	fechaActa = db.Column(db.String(30))
 	placa = db.Column(db.String(10))
 	servicio = db.Column(db.String(50))
+	fecha_resolu = db.Column(db.Date)
+	fecha_acta = db.Column(db.Date)
 	
 
 # Creacion de la base de datos en SQLite 3 
@@ -187,7 +194,6 @@ def usuarios_editar(id):
 	
 	return render_template('usuario-form.html', accion=accion, usuario=usuario)
 
-
 @app.route('/usuarios/eliminar/<int:id>', methods=['GET', 'POST'])
 def usuarios_eliminar(id):
 	usuario = Usuario.query.filter_by(id=id).first()
@@ -206,8 +212,7 @@ def cargaresol():
 	uit = 4950
 
 	# Obtener la lista de archivos PDF en el directorio
-	#PATH = "resoluciones"
-	PATH = "/home/resoluciones/Resoluciones-main/resoluciones"
+	PATH  = os.path.join(app.root_path, "resoluciones")
 	files = []
 
 	for dirpath, dirnames, filenames in os.walk(PATH):
@@ -409,8 +414,160 @@ def descargar_excel():
 
     return response
 
+
+@app.route('/descargar_excel_filtro', methods=['GET'])
+def descargar_excel_filtro():
+    # Se traen todos los resgistros
+    # Pero se pueden aplicar filtros personalizados
+    resoluciones = session.get('datos', None)
+
+    # Crear el archivo Excel
+    output = BytesIO()
+    workbook = xlsxwriter.Workbook(output)
+    worksheet = workbook.add_worksheet()
+
+    # Escribir los encabezados de la tabla
+    worksheet.write(0, 0, 'ID')
+    worksheet.write(0, 1, 'Fecha Resolución')
+    worksheet.write(0, 2, 'N° Resolución')
+    worksheet.write(0, 3, 'Nombre')
+    worksheet.write(0, 4, 'Infracción')
+    worksheet.write(0, 5, 'Valor')
+    worksheet.write(0, 6, 'Acta')
+    worksheet.write(0, 7, 'Fecha Acta')
+    worksheet.write(0, 8, 'Placa')
+    worksheet.write(0, 9, 'Servicio')
+
+    # Escribir los datos de las resoluciones
+    for i, resolucion in enumerate(resoluciones):
+        worksheet.write(i+1, 0, resolucion.id)
+        worksheet.write(i+1, 1, resolucion.fresolucion)
+        worksheet.write(i+1, 2, resolucion.nresolucion)
+        worksheet.write(i+1, 3, resolucion.nombre)
+        worksheet.write(i+1, 4, resolucion.infraccion)
+        worksheet.write(i+1, 5, resolucion.valor)
+        worksheet.write(i+1, 6, resolucion.acta)
+        worksheet.write(i+1, 7, resolucion.fechaActa)
+        worksheet.write(i+1, 8, resolucion.placa)
+        worksheet.write(i+1, 9, resolucion.servicio)
+
+    workbook.close()
+
+    # Preparar la respuesta para descargar el archivo Excel
+    output.seek(0)
+    response = make_response(output.getvalue())
+    response.headers['Content-Disposition'] = 'attachment; filename=resoluciones.xlsx'
+    response.headers['Content-type'] = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+
+    return response
+
+#-- CRUD Resoluciones ----------------------------------------------------------------
+
+@app.route('/resoluciones')
+@login_required
+def resoluciones():
+	datos = Resolucion.query.all()
+	session['datos'] = datos
+	
+	tipo = request.form.get('cboFiltro', 'buscar')
+	
+	fecha_i = datetime.date.today()
+	fecha_f = datetime.date.today()
+	
+	if tipo == "buscar":
+		buscar = request.args.get('buscar', '')
+		datos = Resolucion.query.filter(or_(
+				Resolucion.nresolucion.ilike(f'%{buscar}%'), 
+				Resolucion.nombre.ilike(f'%{buscar}%'),
+				Resolucion.infraccion.ilike(f'%{buscar}%'),
+				Resolucion.acta.ilike(f'%{buscar}%'),
+				Resolucion.placa.ilike(f'%{buscar}%'),
+				Resolucion.servicio.ilike(f'%{buscar}%')
+			)).all()
+		session['datos'] = datos
+	
+	else:
+		filtro = request.args.get('cboFechas')
+		fecha_ini = request.args.get('fecha_ini')
+		fecha_fin = request.args.get('fecha_fin')
+		
+		if filtro == "resol":
+			if fecha_ini and fecha_fin:
+				datos = Resolucion.query.filter(
+						Resolucion.fecha_resolu >= fecha_ini,
+						Resolucion.fecha_resolu <= fecha_fin
+					).all()
+				session['datos'] = datos
+		else:
+			if fecha_ini and fecha_fin:
+				datos = Resolucion.query.filter(
+						Resolucion.fecha_acta >= fecha_ini,
+						Resolucion.fecha_acta <= fecha_fin
+					).all()
+				session['datos'] = datos
+	
+	return render_template('resol-listar.html', datos=datos, fecha_i=fecha_i, fecha_f=fecha_f)
+
+@app.route('/resoluciones/editar/<int:id>', methods=['GET', 'POST'])
+def resoluciones_editar(id):
+	resol = Resolucion.query.filter_by(id=id).first()
+	if request.method == 'POST':
+		fec_res = request.form.get('fecha_resol')
+		if fec_res:
+			fec_res = datetime.strptime(request.form.get('fecha_resol'), '%Y-%m-%d').date()
+		else:
+			fec_res = None
+		
+		fec_act = request.form.get('fecha_acta')
+		if fec_act:
+			fec_act = datetime.strptime(request.form.get('fecha_acta'), '%Y-%m-%d').date()
+		else:
+			fec_act = None
+		
+		#resol.fecha_resolu = datetime.strptime(request.form.get('fecha_resol'), '%Y-%m-%d').date()
+		resol.fecha_resolu = fec_res
+		
+		resol.nresolucion = request.form.get('nresolucion')
+		resol.nombre = request.form.get('nombre')
+		resol.infraccion = request.form.get('infraccion')
+		resol.valor = float(request.form.get('valor'))
+		resol.acta = request.form.get('acta')
+		
+		#resol.fecha_acta = datetime.strptime(request.form.get('fecha_acta'), '%Y-%m-%d').date()
+		resol.fecha_acta = fec_act
+		
+		resol.placa = request.form.get('placa')
+		resol.servicio = request.form.get('servicio')
+		
+		if resol.fecha_resolu != "" and resol.nresolucion != "" and resol.nombre != "" and resol.infraccion != "" and resol.valor != 0 and resol.acta != "" and resol.fecha_acta != "" and resol.placa != "" and resol.servicio != "":
+			db.session.add(resol)
+			db.session.commit()
+		else:
+			flash("Debe indicar todos los campos...")
+			return render_template('resol-form.html', resol=resol)
+		return redirect(url_for('resoluciones'))
+	
+	return render_template('resol-form.html', resol=resol)
+	
+
+@app.route('/resoluciones/eliminar/<int:id>', methods=['GET', 'POST'])
+def resoluciones_eliminar(id):
+	resol = Resolucion.query.filter_by(id=id).first()
+	if request.method == 'POST':
+		db.session.delete(resol)
+		db.session.commit()
+		return redirect(url_for('resoluciones'))
+	return render_template('resol-eliminar.html', resol=resol)
+
+#-------------------------------------------------------------------------------------
+
+#-- Buscar/Filtrar -------------------------------------------------------------------
+
+
+#-------------------------------------------------------------------------------------
+
 if __name__ == '__main__':
 	app.register_error_handler(401, status_401)
 	app.register_error_handler(404, status_404)
 	csrf.init_app(app)
-	app.run(debug=False)
+	app.run(debug=True)

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+{% extends 'base.html' %}
+
+
+<!-- Block Title  ---------------------------------------------------------------------------------------->
+{% block title %}
+	Resoluciones
+{% endblock title %}
+
+<!-- Block Header ---------------------------------------------------------------------------------------->
+{% block header %}
+{% endblock header %}
+
+<!-- Block Main - ---------------------------------------------------------------------------------------->
+{% block main %}
+	<form method="POST" class="mt-5">
+		<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+		<div class="card text-center col-md-6 offset-md-3 border-dark">
+			<div class="card-header bg-warning">
+				<strong>Eliminar Resolución</strong>
+			</div>
+			<div class="card-body">
+				<h5 class="card-title">Atención!</h5>
+				<p class="card-text">¿Está seguro de eliminar la Resolución: <strong>{{ resol.nresolucion }}</strong>?</p>
+				
+				<button class="btn btn-danger" type="submit">Eliminar</button>
+				<a class="btn btn-outline-secondary" href="{{ url_for('resoluciones') }}" role="button">Cancelar</a>
+			</div>
+		</div>
+			
+	</form>
+{% endblock main %}
+
+<!-- Block Fotter ---------------------------------------------------------------------------------------->
+{% block footer %}
+{% endblock footer %}
+
+

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+{% extends 'base.html' %}
+
+<!-- Block Title  ---------------------------------------------------------------------------------------->
+{% block title %}
+	Resoluciones
+{% endblock title %}
+
+<!-- Block Header ---------------------------------------------------------------------------------------->
+{% block header %}
+	{% include 'navbar.html' %}
+{% endblock header %}
+
+<!-- Block Main - ---------------------------------------------------------------------------------------->
+{% block main %}
+
+<div class="card border-primary my-2">
+	<div class="card-body">
+		
+		<form method="get">
+			
+			<!-- <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"> -->
+			
+			<!-- Buscar -->
+			<div class="row my-2 mx-2">
+				<div class="col-lg-2">
+					<!-- <select class="form-select" aria-label="Default select example" id="cboFiltro" name="cboFiltro"> -->
+					<select class="form-select" id="cboFiltro" name="cboFiltro">
+						<option value="buscar" selected>Buscar</option>
+						<option value="filtro">Filtrar</option>
+					</select>
+				</div>
+				
+				<div class="col-lg-8">
+					<input type="text" class="form-control" id="buscar" name="buscar">
+				</div>
+				
+				<div class="col-lg-2">
+					<!-- <button type="submit" class="btn btn-primary" id="btnBuscar" name="btnBuscar">Buscar</button> -->
+					<button type="submit" class="btn btn-primary" id="btnBuscar">Buscar</button>
+				</div>
+			</div>
+			
+			<!-- Filtro -->
+			<div class="row my-2 mx-2">
+				<div class="col-lg-2 offset-2">
+					<select class="form-select" id="cboFechas" name="cboFechas">
+						<option value="resol" selected>Fecha de Resolución</option>
+						<option value="actas">Fecha de Actas</option>
+					</select>
+				</div>
+				
+				<div class="col-lg-3">
+					<input type="date" class="form-control" id="fecha_ini" name="fecha_ini" value="{{ fecha_i|default('') }}">
+				</div>
+				
+				<div class="col-lg-3">
+					<input type="date" class="form-control" id="fecha_fin" name="fecha_fin" value="{{ fecha_f|default('') }}">
+				</div>
+
+				<div class="col-lg-2">
+					<!-- <button type="submit" class="btn btn-primary" id="btnFiltrar" name="btnBuscar">Filtrar</button> -->
+					<button type="submit" class="btn btn-primary" id="btnFiltrar">Filtrar</button>
+				</div>
+				
+			</div>
+			
+		</form>
+		
+	</div>
+	
+</div>
+
+<!-- 
+<div class="mb-2">
+	<form action="{{ url_for('descargar_excel') }}">
+		<!- <button type="submit" class="btn btn-primary">Descargar Resoluciones en Formato Excel</button> ->
+		<button type="button" class="btn btn-primary">Descargar Resoluciones en Formato Excel</button>
+	</form>
+</div>
+ -->
+ 
+<div class="mb-2">
+	<a class="btn btn-success" href="{{ url_for('descargar_excel_filtro', datos=datos) }}">Descargar Resoluciones en Formato Excel</a>
+</div>
+
+<div class="table-responsive mt-3">
+	<table class="table">
+		<thead class="table-primary">
+			<tr>
+				<th>Fecha Resolución</th>
+				<th>No Resolución</th>
+				<th>Nombre</th>
+				<th>Infracción</th>
+				<th>Valor</th>
+				<th>Acta</th>
+				<th>Fecha Acta</th>
+				<th>Placa</th>
+				<th>Servicio</th>
+				<th>Opciones</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for item in datos %}
+				<tr>
+					<td>{{ item.fecha_resolu or "" }}</td>
+					<td>{{ item.nresolucion or "" }}</td>
+					<td>{{ item.nombre or "" }}</td>
+					<td>{{ item.infraccion or "" }}</td>
+					<td>{{ item.valor or "" }}</td>
+					<td>{{ item.acta or "" }}</td>
+					<td>{{ item.fecha_acta or "" }}</td>	
+					<td>{{ item.placa or "" }}</td>
+					<td>{{ item.servicio or "" }}</td>
+					<td>
+						<!-- Botón Editar -->
+						<a class="btn btn-outline-primary" href="{{ url_for('resoluciones_editar', id=item.id) }}"
+							role="button">
+							<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+								class="bi bi-pen" viewbox="0 0 16 16">
+								<path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001zm-.644.766a.5.5 0 0 0-.707 0L1.95 11.756l-.764 3.057 3.057-.764L14.44 3.854a.5.5 0 0 0 0-.708l-1.585-1.585z" />
+							</svg>
+						</a>
+						<!-- Botón Eliminar -->
+						<a class="btn btn-outline-danger" href="{{ url_for('resoluciones_eliminar', id=item.id) }}"
+							role="button">
+							<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+								class="bi bi-trash" viewbox="0 0 16 16">
+								<path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
+								<path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
+							</svg>
+						</a>
+					</td>
+				<tr>
+			{% endfor %}
+		</tbody>
+	</table>
+	<!-- { include 'paginador.html' with entity=clientes paginator=paginator } -->
+</div>
+{% endblock main %}
+

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+{% extends 'base.html' %}
+
+
+<!-- Block Title  ---------------------------------------------------------------------------------------->
+{% block title %}
+	Resoluciones
+{% endblock title %}
+
+<!-- Block Header ---------------------------------------------------------------------------------------->
+{% block header %}
+{% endblock header %}
+
+<!-- Block Main - ---------------------------------------------------------------------------------------->
+{% block main %}
+	<div class="container">
+		<div class="row my-3">
+			<div class="col">
+				<div class="card border-primary">
+					<div class="card-header bg-primary text-white">
+						Editar Resolución
+					</div>
+					
+					<div class="card-body">
+						{% with messages = get_flashed_messages() %}
+							{% if messages %}
+								{% for message in messages %}
+								
+								<div class="alert alert-danger alert-dismissible" role="alert">
+									<strong>{{ message }}</strong>
+									<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+								</div>
+								
+								{% endfor %}
+							{% endif %}
+						{% endwith %}
+				
+						
+						<form method="POST">
+							
+							<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+							
+							<div class="row mt-2">
+								<div class="col-lg-2">
+									<label for="fecha_resol" class="form-label">Fecha Resol.</label>
+									<input type="date" class="form-control" id="fecha_resol" name="fecha_resol" value="{{ resol.fecha_resolu or '' }}">
+								</div>
+								
+								<div class="col-lg-2">
+									<label for="nresolucion" class="form-label">Nro. Resol.</label>
+									<input type="text" class="form-control" id="nresolucion" name="nresolucion" value="{{ resol.nresolucion or ''}}">
+								</div>
+								
+								<div class="col-lg-8">
+									<label for="nombre" class="form-label">Nombre</label>
+									<input type="text" class="form-control" id="nombre" name="nombre" value="{{ resol.nombre or ''}}">
+								</div>
+							</div>
+							
+							<div class="row mt-2">
+								<div class="col-lg-2">
+									<label for="infraccion" class="form-label">Infracción</label>
+									<input type="text" class="form-control" id="infraccion" name="infraccion" value="{{ resol.infraccion or ''}}">
+								</div>
+								
+								<div class="col-lg-2">
+									<label for="valor" class="form-label">Valor</label>
+									<input type="number" class="form-control" id="valor" name="valor" value="{{ resol.valor or 0.00}}">
+								</div>
+								
+								<div class="col-lg-6">
+									<label for="acta" class="form-label">Acta</label>
+									<input type="text" class="form-control" id="acta" name="acta" value="{{ resol.acta or ''}}">
+								</div>
+								
+								<div class="col-lg-2">
+									<label for="fecha_acta" class="form-label">Fecha Acta</label>
+									<input type="date" class="form-control" id="fecha_acta" name="fecha_acta" value="{{ resol.fecha_acta or ''}}">
+								</div>
+							</div>
+							
+							<div class="row mt-2">
+								<div class="col-lg-2">
+									<label for="placa" class="form-label">Placa</label>
+									<input type="text" class="form-control" id="placa" name="placa" value="{{ resol.placa or ''}}">
+								</div>
+								
+								<div class="col-lg-10">
+									<label for="servicio" class="form-label">Servicio</label>
+									<input type="text" class="form-control" id="servicio" name="servicio" value="{{ resol.servicio or ''}}">
+								</div>
+							</div>
+							
+							
+							<!-- ================================================ -->
+							
+							<div class="mt-3">
+								<button type="submit" class="btn btn-primary">Guardar</button>
+								<a class="btn btn-secondary" href="/resoluciones">Salir</a>
+							</div>
+						</form>
+						
+					</div> <!-- /End Body -->
+					
+					<div class="card-footer text-muted">
+					</div>
+				</div>
+				
+			</div>
+		</div>
+	</div>
+{% endblock main %}
+
+<!-- Block Fotter ---------------------------------------------------------------------------------------->
+{% block footer %}
+{% endblock footer %}
