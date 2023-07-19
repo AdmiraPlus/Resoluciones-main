@@ -21,7 +21,14 @@
 			<div class="card-body">
 				<h4 class="card-title">Atención!</h4>
 				<h2 class="card-text">{{ mensaje }}</h2>
-				<a href="{{ url_for('subir_pdf') }}"><button type="button" class="btn">Volver a subir PDF </button></a>
+				
+				<ul>
+					{% for archivo in archivos %}
+    					<li>{{ archivo.filename }}</li>
+  					{% endfor %}
+				</ul>
+				
+				<a href="{{ url_for('subir_pdf') }}" class="btn btn-primary">Volver a subir PDF(s)</a>
 			</div>
 			<div class="card-footer text-white bg-secondary">
 				{{ fecha }}

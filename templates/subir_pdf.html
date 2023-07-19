@@ -12,14 +12,37 @@
 
 <!-- Block Main - ---------------------------------------------------------------------------------------->
 {% block main %}
+	<h3>Subir Archivos PDF</h3>
+	<p>Puede seleccionar uno o más archivos, luego de dar click a Elegir archivos</p>
+	<p>Cuando la lista de archivos, tenga al menos un elemento, de click a Subir Archivos</p>
+  	<h3>Lista de Archivos</h3>
+
+	<div class="card m-3">
+		<ul id="file-list" class="list-group list-group-flush">
+		</ul>
+	</div>
+	
 	<div class="container">
 		<form action="{{ url_for('cargar_pdf') }}" method="post" enctype="multipart/form-data">
 			<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 			
-			<input type="file" class="form-control" name="archivo">
-			<input type="submit" class="form-control btn btn-primary" value="Cargar Archivo">
+			<input type="file" class="form-control" name="archivos" multiple onchange="updateFileList(this)">
+			<input type="submit" class="form-control btn btn-primary" value="Subir Archivos">
 		</form>
 	</div>
+
+	<script>
+	function updateFileList(input) {
+		var fileList = document.getElementById("file-list");
+		fileList.innerHTML = "";
+		for (var i = 0; i < input.files.length; i++) {
+			var file = input.files[i];
+			var li = document.createElement("li");
+			li.innerHTML = file.name + " (" + file.type + ", " + file.size + " bytes)";
+			fileList.appendChild(li);
+		}
+	}
+	</script>
 {% endblock main %}
 
 <!-- Block Fotter ---------------------------------------------------------------------------------------->
