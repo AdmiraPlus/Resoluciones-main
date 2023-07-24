@@ -19,34 +19,30 @@
 		
 		<form method="get">
 			
-			<!-- <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"> -->
-			
 			<!-- Buscar -->
 			<div class="row my-2 mx-2">
 				<div class="col-lg-2">
-					<!-- <select class="form-select" aria-label="Default select example" id="cboFiltro" name="cboFiltro"> -->
 					<select class="form-select" id="cboFiltro" name="cboFiltro">
-						<option value="buscar" selected>Buscar</option>
-						<option value="filtro">Filtrar</option>
+						<option value="buscar" {% if tipo == 'buscar' %}selected{% endif %}>Buscar</option>
+						<option value="filtro" {% if tipo == 'filtro' %}selected{% endif %}>Filtrar</option>
 					</select>
 				</div>
 				
 				<div class="col-lg-8">
-					<input type="text" class="form-control" id="buscar" name="buscar">
+					<input type="text" class="form-control" id="buscar" name="buscar" value="{{ buscar }}">
 				</div>
 				
 				<div class="col-lg-2">
-					<!-- <button type="submit" class="btn btn-primary" id="btnBuscar" name="btnBuscar">Buscar</button> -->
-					<button type="submit" class="btn btn-primary" id="btnBuscar">Buscar</button>
+					<button type="submit" class="btn btn-primary w-100" id="btnBuscar">Buscar</button>
 				</div>
 			</div>
 			
 			<!-- Filtro -->
 			<div class="row my-2 mx-2">
-				<div class="col-lg-2 offset-2">
+				<div class="col-lg-2 offset-lg-2">
 					<select class="form-select" id="cboFechas" name="cboFechas">
-						<option value="resol" selected>Fecha de Resolución</option>
-						<option value="actas">Fecha de Actas</option>
+						<option value="resol" {% if tipof == 'resol' %}selected{% endif %}>Fecha de Resolución</option>
+						<option value="actas" {% if tipof == 'actas' %}selected{% endif %}>Fecha de Actas</option>
 					</select>
 				</div>
 				
@@ -59,8 +55,7 @@
 				</div>
 
 				<div class="col-lg-2">
-					<!-- <button type="submit" class="btn btn-primary" id="btnFiltrar" name="btnBuscar">Filtrar</button> -->
-					<button type="submit" class="btn btn-primary" id="btnFiltrar">Filtrar</button>
+					<button type="submit" class="btn btn-primary w-100" id="btnFiltrar">Filtrar</button>
 				</div>
 				
 			</div>
@@ -70,15 +65,6 @@
 	</div>
 	
 </div>
-
-<!-- 
-<div class="mb-2">
-	<form action="{{ url_for('descargar_excel') }}">
-		<!- <button type="submit" class="btn btn-primary">Descargar Resoluciones en Formato Excel</button> ->
-		<button type="button" class="btn btn-primary">Descargar Resoluciones en Formato Excel</button>
-	</form>
-</div>
- -->
  
 <div class="mb-2">
 	<a class="btn btn-success" href="{{ url_for('descargar_excel_filtro', datos=datos) }}">Descargar Resoluciones en Formato Excel</a>
@@ -137,5 +123,37 @@
 	</table>
 	<!-- { include 'paginador.html' with entity=clientes paginator=paginator } -->
 </div>
+
+<script>
+	
+	function habDeshab(){
+		const cboFiltro = document.getElementById("cboFiltro").value;
+		
+		if (cboFiltro == "buscar"){
+			document.getElementById("buscar").disabled = false;
+			document.getElementById("btnBuscar").disabled = false;
+			
+			document.getElementById("cboFechas").disabled = true;
+			document.getElementById("fecha_ini").disabled = true;
+			document.getElementById("fecha_fin").disabled = true;
+			document.getElementById("btnFiltrar").disabled = true;
+		}else{
+			document.getElementById("buscar").disabled = true;
+			document.getElementById("btnBuscar").disabled = true;
+			
+			document.getElementById("cboFechas").disabled = false;
+			document.getElementById("fecha_ini").disabled = false;
+			document.getElementById("fecha_fin").disabled = false;
+			document.getElementById("btnFiltrar").disabled = false;
+		}
+	};
+	
+	(function ( ) {
+		habDeshab();
+	}) ( );
+	
+	document.getElementById("cboFiltro").addEventListener("change", habDeshab);
+	
+</script>
 {% endblock main %}
 

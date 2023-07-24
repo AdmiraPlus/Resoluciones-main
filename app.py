@@ -530,13 +530,13 @@ def resoluciones():
 	datos = Resolucion.query.all()
 	session['datos'] = datos
 	
+	buscar = request.args.get('buscar', '')
 	tipo = request.args.get('cboFiltro', 'buscar')
-	
-	fecha_i = datetime.date.today()
-	fecha_f = datetime.date.today()
+	tipof = request.args.get('cboFechas', 'resol')
+	fecha_i = request.args.get('fecha_ini', datetime.date.today())
+	fecha_f = request.args.get('fecha_fin', datetime.date.today())
 	
 	if tipo == "buscar":
-		buscar = request.args.get('buscar', '')
 		datos = Resolucion.query.filter(or_(
 				Resolucion.nresolucion.ilike(f'%{buscar}%'), 
 				Resolucion.nombre.ilike(f'%{buscar}%'),
@@ -567,8 +567,7 @@ def resoluciones():
 						Resolucion.fecha_acta <= fecha_fin
 					).all()
 				session['datos'] = datos
-	
-	return render_template('resol-listar.html', datos=datos, fecha_i=fecha_i, fecha_f=fecha_f)
+	return render_template('resol-listar.html', datos=datos, fecha_i=fecha_i, fecha_f=fecha_f, buscar=buscar, tipo=tipo, tipof=tipof)
 
 @app.route('/resoluciones/editar/<int:id>', methods=['GET', 'POST'])
 def resoluciones_editar(id):
